@@ -55,16 +55,22 @@ public class DirectProxySocket: ProxySocket {
      */
     override public func openSocket() {
         super.openSocket()
-
+        
         guard !isCancelled else {
             return
         }
-
+        
         if let address = socket.destinationIPAddress, let port = socket.destinationPort {
             session = ConnectSession(host: address.presentation, port: Int(port.value))
-
-            observer?.signal(.receivedRequest(session!, on: self))
-            delegate?.didReceive(session: session!, from: self)
+            
+            if let session = self.session {
+                observer?.signal(.receivedRequest(session, on: self))
+                delegate?.didReceive(session: session, from: self)
+            }
+            else {
+                forceDisconnect()
+            }
+            
         } else {
             forceDisconnect()
         }
