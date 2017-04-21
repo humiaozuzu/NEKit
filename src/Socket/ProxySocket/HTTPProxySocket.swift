@@ -47,12 +47,12 @@ public class HTTPProxySocket: ProxySocket {
         }
     }
     /// The remote host to connect to.
-    public var destinationHost: String!
+    public var destinationHost: String?
     
     /// The remote port to connect to.
-    public var destinationPort: Int!
+    public var destinationPort: Int?
     
-    private var currentHeader: HTTPHeader!
+    private var currentHeader: HTTPHeader?
     
     private let scanner: HTTPStreamScanner = HTTPStreamScanner()
     
@@ -90,9 +90,14 @@ public class HTTPProxySocket: ProxySocket {
         
         // Return the first header we read when the socket was opened if the proxy command is not CONNECT.
         if readStatus == .pendingFirstHeader {
-            delegate?.didRead(data: currentHeader.toData(), from: self)
-            readStatus = .readingContent
-            return
+            if let currentHeader = self.currentHeader {
+                delegate?.didRead(data: currentHeader.toData(), from: self)
+                readStatus = .readingContent
+                return
+            }
+            else {
+                disconnect()
+            }
         }
         
         switch scanner.nextAction {
@@ -135,28 +140,50 @@ public class HTTPProxySocket: ProxySocket {
         switch (readStatus, result) {
         case (.readingFirstHeader, .header(let header)):
             currentHeader = header
-            currentHeader.removeProxyHeader()
-            currentHeader.rewriteToRelativePath()
-            
-            destinationHost = currentHeader.host
-            destinationPort = currentHeader.port
-            isConnectCommand = currentHeader.isConnect
-            
-            if !isConnectCommand {
-                readStatus = .pendingFirstHeader
-            } else {
-                readStatus = .readingContent
+            if let currentHeader = self.currentHeader {
+                currentHeader.removeProxyHeader()
+                currentHeader.rewriteToRelativePath()
+                
+                destinationHost = currentHeader.host
+                destinationPort = currentHeader.port
+                
+                if let destinationHost = self.destinationHost, let destinationPort = self.destinationPort {
+                    isConnectCommand = currentHeader.isConnect
+                    
+                    if !isConnectCommand {
+                        readStatus = .pendingFirstHeader
+                    } else {
+                        readStatus = .readingContent
+                    }
+                    
+                    if let session = ConnectSession(host: destinationHost, port: destinationPort) {
+                        observer?.signal(.receivedRequest(session, on: self))
+                        delegate?.didReceive(session: session, from: self)
+                    }
+                    else {
+                        disconnect()
+                    }
+                }
+                else {
+                    disconnect()
+                }
             }
-            
-            session = ConnectSession(host: destinationHost!, port: destinationPort!)
-            observer?.signal(.receivedRequest(session!, on: self))
-            delegate?.didReceive(session: session!, from: self)
+            else {
+                disconnect()
+            }
         case (.readingHeader, .header(let header)):
             currentHeader = header
-            currentHeader.removeProxyHeader()
-            currentHeader.rewriteToRelativePath()
             
-            delegate?.didRead(data: currentHeader.toData(), from: self)
+            if let currentHeader = self.currentHeader {
+                currentHeader.removeProxyHeader()
+                currentHeader.rewriteToRelativePath()
+                
+                delegate?.didRead(data: currentHeader.toData(), from: self)
+            }
+            else {
+                disconnect()
+            }
+            
         case (.readingContent, .content(let content)):
             delegate?.didRead(data: content, from: self)
         default:
