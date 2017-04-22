@@ -6,6 +6,8 @@ open class TUNInterface {
     fileprivate weak var packetFlow: NEPacketTunnelFlow?
     fileprivate var stacks: [IPStackProtocol] = []
     
+    private var tokenForWaterLevel:NSObjectProtocol!
+    private var isWaterLevelOK = true
     /**
      Initialize TUN interface with a packet flow.
      
@@ -13,6 +15,19 @@ open class TUNInterface {
      */
     public init(packetFlow: NEPacketTunnelFlow) {
         self.packetFlow = packetFlow
+        self.tokenForWaterLevel = NotificationCenter.default.addObserver(forName: Notification.Name.init("NEKit.TUNTCPSocket.globalPendingReadDataSize.WaterLevelOK"), object: nil, queue: nil) { [weak self] (noti) in
+            if let isWaterLevelOK = noti.object as? NSNumber, isWaterLevelOK.boolValue {
+                self?.isWaterLevelOK = true
+                self?.readPackets()
+            }
+            else {
+                self?.isWaterLevelOK = false
+            }
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(tokenForWaterLevel)
     }
     
     /**
@@ -70,7 +85,9 @@ open class TUNInterface {
                 }
             }
             
-            self.readPackets()
+            if self.isWaterLevelOK {
+                self.readPackets()
+            }
         }
     }
     
