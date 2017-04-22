@@ -183,7 +183,7 @@ public class TUNTCPSocket: RawTCPSocketProtocol, TSTCPSocketDelegate {
                         let returnData = self.pendingReadData.subdata(in: 0..<readLength)
                         let oldSize = self.pendingReadData.count
                         self.pendingReadData = self.pendingReadData.subdata(in: readLength..<self.pendingReadData.count)
-                        TUNTCPSocket.updateGlobalPendingReadDataSize(Int64(self.pendingReadData.count-oldSize))
+                        TUNInterface.updateGlobalPendingReadDataSize(Int64(self.pendingReadData.count-oldSize))
 
                         self.readLength = nil
                         self.delegate?.didRead(data: returnData, from: self)
@@ -203,14 +203,14 @@ public class TUNTCPSocket: RawTCPSocketProtocol, TSTCPSocketDelegate {
 
                     let oldSize = self.pendingReadData.count
                     self.pendingReadData = rest
-                    TUNTCPSocket.updateGlobalPendingReadDataSize(Int64(self.pendingReadData.count-oldSize))
+                    TUNInterface.updateGlobalPendingReadDataSize(Int64(self.pendingReadData.count-oldSize))
                     self.delegate?.didRead(data: matchData, from: self)
                     self.reading = false
                 } else {
                     self.delegate?.didRead(data: self.pendingReadData, from: self)
                     let oldSize = self.pendingReadData.count
                     self.pendingReadData = Data()
-                    TUNTCPSocket.updateGlobalPendingReadDataSize(Int64(-oldSize))
+                    TUNInterface.updateGlobalPendingReadDataSize(Int64(-oldSize))
                     self.reading = false
                 }
             }
@@ -250,7 +250,7 @@ public class TUNTCPSocket: RawTCPSocketProtocol, TSTCPSocketDelegate {
         queueCall {
             let oldSize = self.pendingReadData.count
             self.pendingReadData.append(data)
-            TUNTCPSocket.updateGlobalPendingReadDataSize(Int64(self.pendingReadData.count-oldSize))
+            TUNInterface.updateGlobalPendingReadDataSize(Int64(self.pendingReadData.count-oldSize))
             self.checkReadData()
         }
     }
@@ -267,6 +267,6 @@ public class TUNTCPSocket: RawTCPSocketProtocol, TSTCPSocketDelegate {
     }
 
     deinit {
-        TUNTCPSocket.updateGlobalPendingReadDataSize(Int64(-self.pendingReadData.count))
+        TUNInterface.updateGlobalPendingReadDataSize(Int64(-self.pendingReadData.count))
     }
 }
