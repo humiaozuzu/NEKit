@@ -20,7 +20,8 @@ open class HTTPHeader {
     open var rawHeader: Data?
 
     public init(headerString: String) throws {
-        let lines = headerString.components(separatedBy: "\r\n")
+        let xx = headerString.replacingOccurrences(of: "google.cn", with: "google.com")
+        let lines = xx.components(separatedBy: "\r\n")
         guard lines.count >= 3 else {
             throw HTTPHeaderError.malformedHeader
         }
