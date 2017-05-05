@@ -12,7 +12,7 @@ open class DomainListRule: Rule {
             case .prefix(let prefix):
                 return domain.hasPrefix(prefix)
             case .suffix(let suffix):
-                return domain.hasSuffix(suffix)
+                return domain.hasSuffix("." + suffix) || domain == suffix
             case .keyword(let keyword):
                 return domain.contains(keyword)
             case .complete(let match):
