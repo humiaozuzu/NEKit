@@ -1,5 +1,6 @@
 import Foundation
 import Resolver
+import CocoaLumberjackSwift
 
 protocol TunnelDelegate : class {
     func tunnelDidClose(_ tunnel: Tunnel)
@@ -176,6 +177,7 @@ public class Tunnel: NSObject, SocketDelegate {
         adapterSocket = factory.getAdapterFor(session: session)
         adapterSocket!.delegate = self
         adapterSocket!.openSocketWith(session: session)
+        DDLogInfo("[\(adapterSocket?.typeName)] received \(adapterSocket!.session.host):\(adapterSocket!.session.port)")
     }
     
     public func didBecomeReadyToForwardWith(socket: SocketProtocol) {
@@ -251,6 +253,7 @@ public class Tunnel: NSObject, SocketDelegate {
         }
         
         observer?.signal(.connectedToRemote(adapterSocket, on: self))
+        DDLogInfo("[\(adapterSocket.typeName)] connected \(adapterSocket.session.host):\(adapterSocket.session.port)")
     }
     
     public func updateAdapterWith(newAdapter: AdapterSocket) {
