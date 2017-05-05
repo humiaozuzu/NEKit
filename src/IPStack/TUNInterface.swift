@@ -76,9 +76,7 @@ open class TUNInterface {
     
     fileprivate func generateOutputBlock() -> ([Data], [NSNumber]) -> Void {
         return { [weak self] packets, versions in
-            autoreleasepool {
-                self?.packetFlow?.writePackets(packets, withProtocols: versions)
-            }
+            self?.packetFlow?.writePackets(packets, withProtocols: versions)
         }
     }
 }
