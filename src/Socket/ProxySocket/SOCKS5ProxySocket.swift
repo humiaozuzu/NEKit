@@ -195,6 +195,7 @@ public class SOCKS5ProxySocket: ProxySocket {
             }
             
             readStatus = .forwarding
+            self.session = nil
             if let session = ConnectSession(host: destinationHost, port: destinationPort) {
                 self.session = session
                 observer?.signal(.receivedRequest(session, on: self))
