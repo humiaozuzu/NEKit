@@ -60,11 +60,12 @@ public class DirectProxySocket: ProxySocket {
             return
         }
 
-        if let address = socket.destinationIPAddress, let port = socket.destinationPort {
-            session = ConnectSession(host: address.presentation, port: Int(port.value))
-
-            observer?.signal(.receivedRequest(session!, on: self))
-            delegate?.didReceive(session: session!, from: self)
+        if let address = socket.destinationIPAddress, let port = socket.destinationPort,
+           let session = ConnectSession(host: address.presentation, port: Int(port.value)){
+            self.session = session
+            observer?.signal(.receivedRequest(session, on: self))
+            delegate?.didReceive(session: session, from: self)
+            
         } else {
             forceDisconnect()
         }
