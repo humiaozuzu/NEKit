@@ -148,6 +148,7 @@ public class HTTPProxySocket: ProxySocket {
                 readStatus = .readingContent
             }
             
+            self.session = nil
             if let session = ConnectSession(host: destinationHost!, port: destinationPort!) {
                 self.session = session
                 observer?.signal(.receivedRequest(session, on: self))
