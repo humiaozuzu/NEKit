@@ -148,9 +148,12 @@ public class HTTPProxySocket: ProxySocket {
                 readStatus = .readingContent
             }
             
-            session = ConnectSession(host: destinationHost!, port: destinationPort!)
-            observer?.signal(.receivedRequest(session!, on: self))
-            delegate?.didReceive(session: session!, from: self)
+            if let session = ConnectSession(host: destinationHost!, port: destinationPort!) {
+                self.session = session
+                observer?.signal(.receivedRequest(session, on: self))
+                delegate?.didReceive(session: session, from: self)
+            }
+            
         case (.readingHeader, .header(let header)):
             currentHeader = header
             currentHeader.removeProxyHeader()
