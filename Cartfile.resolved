@@ -1,5 +1,5 @@
 github "CocoaLumberjack/CocoaLumberjack" "3.2.0"
-github "Quick/Nimble" "v5.1.1"
+github "Quick/Nimble" "v7.0.1"
 github "Quick/Quick" "v1.0.0"
 github "behrang/YamlSwift" "3.4.0"
 github "lexrus/MMDB-Swift" "0.2.7"
