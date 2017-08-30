@@ -41,7 +41,7 @@ open class ProxyServer: NSObject, TunnelDelegate {
     public init(address: IPAddress?, port: Port) {
         self.address = address
         self.port = port
-        type = "\(type(of: self))"
+        type = "\(Swift.type(of: self))"
 
         super.init()
 
